@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Home Personality Test</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 30px;
+      color: #111;
+    }
+
+    .container {
+      max-width: 680px;
+      min-height: 620px;
+      margin: 0 auto;
+      background: white;
+      padding: 40px 32px;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .page {
+      display: none;
+      text-align: center;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    h1 {
+      font-size: 34px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h2 {
+      font-size: 28px;
+      margin-bottom: 32px;
+      line-height: 1.4;
+      color: #0b1f5c;
+    }
+
+    .desc {
+      color: #666;
+      line-height: 1.6;
+      font-size: 17px;
+      margin-bottom: 36px;
+    }
+
+    .progress {
+      color: #0b1f5c;
+      font-weight: bold;
+      margin-bottom: 12px;
+      font-size: 15px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #e9ecf5;
+      border-radius: 10px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+
+    .options {
+      display: flex;
+      gap: 16px;
+      margin: 36px 0;
+    }
+
+    .option {
+      flex: 1;
+      min-height: 150px;
+      padding: 26px 18px;
+      border: 2px solid #ddd;
+      border-radius: 18px;
+      background: white;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .option-emoji {
+      font-size: 32px;
+      display: block;
+    }
+
+    .option-text {
+      font-size: 16px;
+    }
+
+    .option:hover {
+      background: #f3f5fb;
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    }
+
+    .option.selected {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+      transform: translateY(-4px);
+    }
+
+    .option.selected .option-emoji {
+      animation: bounce 0.4s ease;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    .button {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .button.secondary {
+      background: #e9ecf5;
+      color: #0b1f5c;
+      margin-top: 12px;
+    }
+
+    .button.secondary:hover {
+      background: #dce1f0;
+      box-shadow: 0 4px 12px rgba(11, 31, 92, 0.1);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .button-group .button {
+      flex: 1;
+      margin-top: 0;
+    }
+
+    .button-group .button.secondary {
+      margin-top: 0;
+    }
+
+    .result-card {
+      background: linear-gradient(135deg, #f0f2ff 0%, #f5f3ff 100%);
+      padding: 32px;
+      border-radius: 20px;
+      line-height: 1.7;
+      margin-top: 24px;
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      animation: scaleIn 0.5s ease-out;
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .result-emoji {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .result-card h3 {
+      font-size: 28px;
+      margin-top: 0;
+      margin-bottom: 12px;
+      color: #0b1f5c;
+      font-weight: 700;
+    }
+
+    .result-type {
+      font-size: 18px;
+      color: #667eea;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .result-card p {
+      margin: 12px 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+      font-size: 15px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      animation: slideUp 0.3s ease-out forwards;
+      z-index: 1000;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    .toast.hide {
+      animation: slideDown 0.3s ease-out forwards;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 16px;
+      }
+
+      .container {
+        min-height: 560px;
+        padding: 30px 20px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      h2 {
+        font-size: 22px;
+      }
+
+      .options {
+        flex-direction: column;
+      }
+
+      .option {
+        min-height: 110px;
+        font-size: 16px;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .toast {
+        bottom: 20px;
+        padding: 14px 20px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- Intro Page -->
+    <section class="page active" id="introPage">
+      <h1>SmartThings Personality Test</h1>
+      <p class="desc">
+        Answer 3 quick questions and discover<br>
+        your ideal SmartThings lifestyle.
+      </p>
+      <button class="button" id="startBtn">Start</button>
+    </section>
+
+    <!-- Question Page -->
+    <section class="page" id="questionPage">
+      <div class="progress" id="progressText">Question 1 of 3</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <h2 id="questionTitle">What's your living situation?</h2>
+
+      <div class="options">
+        <button class="option" id="optionA">
+          <span class="option-emoji" id="optionAEmoji">👨‍👩‍👧‍👦</span>
+          <span class="option-text" id="optionAText">Living with family</span>
+        </button>
+        <button class="option" id="optionB">
+          <span class="option-emoji" id="optionBEmoji">👤</span>
+          <span class="option-text" id="optionBText">Living alone/separately</span>
+        </button>
+      </div>
+
+      <button class="button" id="nextBtn">Next</button>
+    </section>
+
+    <!-- Result Page -->
+    <section class="page" id="resultPage">
+      <h2>Your SmartThings Type</h2>
+
+      <div class="result-card">
+        <span class="result-emoji" id="resultEmoji">🎯</span>
+        <h3 id="resultTitle">AI Food Manager</h3>
+        <div class="result-type" id="resultType">Smart Type</div>
+        <p id="resultDesc">Description</p>
+      </div>
+
+      <div class="button-group">
+        <button class="button secondary" id="shareBtn">📱 Share My Result</button>
+        <button class="button" id="experienceBtn">🚀 Try It Out</button>
+      </div>
+
+      <button class="button secondary" id="restartBtn">Start Over</button>
+    </section>
+
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const questions = [
+      {
+        text: "What's your living situation?",
+        a: "👨‍👩‍👧‍👦 Living with family",
+        b: "👤 Living alone/separately",
+        emojiA: "👨‍👩‍👧‍👦",
+        emojiB: "👤"
+      },
+      {
+        text: "What matters more to you?",
+        a: "❤️ Health & Safety",
+        b: "⚡ Energy Efficiency",
+        emojiA: "❤️",
+        emojiB: "⚡"
+      },
+      {
+        text: "What's your lifestyle?",
+        a: "🏠 Spend most time at home",
+        b: "🚗 Spend most time outside",
+        emojiA: "🏠",
+        emojiB: "🚗"
+      }
+    ];
+
+    const results = {
+      "AAA": {
+        emoji: "🍽️",
+        type: "Health-Conscious Family Type",
+        title: "AI Food Manager",
+        desc: "Your smart fridge scans ingredients and recommends personalized recipes based on your family's health needs. Stay organized, eat better."
+      },
+      "BAA": {
+        emoji: "❤️",
+        type: "Caring Parent Type",
+        title: "Family Care",
+        desc: "Monitor your loved ones living separately. Get alerts when their daily patterns change, ensuring everyone's well-being from afar."
+      },
+      "AAB": {
+        emoji: "🛡️",
+        type: "Smart Home Guardian Type",
+        title: "Home Monitoring",
+        desc: "Robot vacuum cameras and sensors protect your home. Monitor kids and pets in real-time, get security alerts instantly."
+      },
+      "BAB": {
+        emoji: "🎮",
+        type: "Remote Control Master Type",
+        title: "Device Control",
+        desc: "Control all your devices from anywhere, anytime. Get alerts about appliance issues before they become problems."
+      },
+      "ABA": {
+        emoji: "⚡",
+        type: "Smart Eco Type",
+        title: "AI Energy Mode",
+        desc: "AI learns your lifestyle and automatically adjusts your home's energy use. Lower bills, smarter efficiency."
+      },
+      "BBA": {
+        emoji: "⚡",
+        type: "Smart Eco Type",
+        title: "AI Energy Mode",
+        desc: "AI learns your lifestyle and automatically adjusts your home's energy use. Lower bills, smarter efficiency."
+      },
+      "ABB": {
+        emoji: "🏃",
+        type: "Automated Life Type",
+        title: "Away Mode",
+        desc: "Leave home and everything powers down automatically. Lights off, appliances in away mode, security activated - no thinking required."
+      },
+      "BBB": {
+        emoji: "🏃",
+        type: "Automated Life Type",
+        title: "Away Mode",
+        desc: "Leave home and everything powers down automatically. Lights off, appliances in away mode, security activated - no thinking required."
+      }
+    };
+
+    let currentQuestionIndex = 0;
+    let answers = ["", "", ""];
+    let selectedAnswer = "";
+
+    const introPage = document.getElementById("introPage");
+    const questionPage = document.getElementById("questionPage");
+    const resultPage = document.getElementById("resultPage");
+
+    const startBtn = document.getElementById("startBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const shareBtn = document.getElementById("shareBtn");
+    const experienceBtn = document.getElementById("experienceBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    const progressText = document.getElementById("progressText");
+    const progressFill = document.getElementById("progressFill");
+    const questionTitle = document.getElementById("questionTitle");
+    const optionA = document.getElementById("optionA");
+    const optionB = document.getElementById("optionB");
+    const optionAEmoji = document.getElementById("optionAEmoji");
+    const optionBEmoji = document.getElementById("optionBEmoji");
+    const optionAText = document.getElementById("optionAText");
+    const optionBText = document.getElementById("optionBText");
+
+    const resultEmoji = document.getElementById("resultEmoji");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultType = document.getElementById("resultType");
+    const resultDesc = document.getElementById("resultDesc");
+
+    const toastElement = document.getElementById("toast");
+
+    function showToast(message) {
+      toastElement.textContent = message;
+      toastElement.classList.remove("hide");
+      toastElement.style.opacity = "1";
+      
+      setTimeout(() => {
+        toastElement.classList.add("hide");
+      }, 3000);
+    }
+
+    function showPage(page) {
+      introPage.classList.remove("active");
+      questionPage.classList.remove("active");
+      resultPage.classList.remove("active");
+
+      page.classList.add("active");
+    }
+
+    function updateProgressBar() {
+      const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+      progressFill.style.width = progress + "%";
+    }
+
+    function loadQuestion() {
+      const question = questions[currentQuestionIndex];
+
+      progressText.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+      questionTitle.textContent = question.text;
+      optionAText.textContent = question.a;
+      optionBText.textContent = question.b;
+      optionAEmoji.textContent = question.emojiA;
+      optionBEmoji.textContent = question.emojiB;
+
+      selectedAnswer = answers[currentQuestionIndex];
+
+      optionA.classList.remove("selected");
+      optionB.classList.remove("selected");
+
+      if (selectedAnswer === "A") {
+        optionA.classList.add("selected");
+      }
+
+      if (selectedAnswer === "B") {
+        optionB.classList.add("selected");
+      }
+
+      updateProgressBar();
+
+      if (currentQuestionIndex === questions.length - 1) {
+        nextBtn.textContent = "See Results";
+      } else {
+        nextBtn.textContent = "Next";
+      }
+    }
+
+    function selectOption(answer) {
+      selectedAnswer = answer;
+      answers[currentQuestionIndex] = answer;
+
+      optionA.classList.remove("selected");
+      optionB.classList.remove("selected");
+
+      if (answer === "A") {
+        optionA.classList.add("selected");
+      } else {
+        optionB.classList.add("selected");
+      }
+    }
+
+    function showResult() {
+      const code = answers.join("");
+      const result = results[code];
+
+      resultEmoji.textContent = result.emoji;
+      resultTitle.textContent = result.title;
+      resultType.textContent = result.type;
+      resultDesc.textContent = result.desc;
+
+      showPage(resultPage);
+    }
+
+    function shareResult() {
+      const currentURL = window.location.href;
+      navigator.clipboard.writeText(currentURL).then(() => {
+        showToast("✓ URL copied! Share with friends.");
+      }).catch(() => {
+        // Fallback for browsers that don't support clipboard API
+        const textArea = document.createElement("textarea");
+        textArea.value = currentURL;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand("copy");
+          showToast("✓ URL copied! Share with friends.");
+        } catch (err) {
+          showToast("Could not copy URL");
+        }
+        document.body.removeChild(textArea);
+      });
+    }
+
+    function goToExperience() {
+      window.open("https://virtual.smartthings.com", "_blank");
+    }
+
+    startBtn.addEventListener("click", function () {
+      currentQuestionIndex = 0;
+      answers = ["", "", ""];
+      selectedAnswer = "";
+      loadQuestion();
+      showPage(questionPage);
+    });
+
+    optionA.addEventListener("click", function () {
+      selectOption("A");
+    });
+
+    optionB.addEventListener("click", function () {
+      selectOption("B");
+    });
+
+    nextBtn.addEventListener("click", function () {
+      if (selectedAnswer === "") {
+        showToast("Please select an option");
+        return;
+      }
+
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    });
+
+    shareBtn.addEventListener("click", function () {
+      shareResult();
+    });
+
+    experienceBtn.addEventListener("click", function () {
+      goToExperience();
+    });
+
+    restartBtn.addEventListener("click", function () {
+      currentQuestionIndex = 0;
+      answers = ["", "", ""];
+      selectedAnswer = "";
+      showPage(introPage);
+    });
+  </script>
+</body>
+</html>
